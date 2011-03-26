@@ -7,7 +7,7 @@ Standards-Version: 3.8.0
 Homepage: http://github.com/renard/git-meta 
 
 Package: git-meta
-Architecture: any
+Architecture: all
 Depends: ${shlibs:Depends}, ${misc:Depends}, git | git-core,
 Description: Handle file meta information within git
  Git (currently) cannot handle file system meta information such as
