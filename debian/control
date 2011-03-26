@@ -1,0 +1,22 @@
+Source: git-meta
+Section: vcs
+Priority: extra
+Maintainer: Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
+Build-Depends: debhelper (>= 7.0.50)
+Standards-Version: 3.8.0
+Homepage: http://github.com/renard/git-meta 
+
+Package: git-meta
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, git | git-core,
+Description: Handle file meta information within git
+ Git (currently) cannot handle file system meta information such as
+ permissions, last modification time or ownership (both user and
+ group). Here comes +git-meta+ to fix this in some cases where these
+ informations are mandatory or simply useful.
+ .
+ All informations are stored in a +.gitmeta+ file managed itself by
+ git.
+ .
+ Using git hooks may automate the backup and restore process.
+ 
