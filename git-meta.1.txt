@@ -1,0 +1,176 @@
+= git-meta(1) =
+
+== NAME ==
+
+git-meta - Handle file meta information within git
+
+== SYNOPSIS ==
+
+git-meta [ options ] command
+
+== DESCRIPTION ==
+
+Git (currently) cannot handle file system meta information such as
+permissions, last modification time or ownership (both user and
+group). Here comes +git-meta+ to fix this in some cases where these
+informations are mandatory or simply useful.
+
+All informations are stored in a +.gitmeta+ file managed itself by git.
+
+Using git hooks may automate the backup and restore process.
+
+== OPTIONS ==
+
+--data DATA::
+
+  Set the +git-meta' database file (default: '.gitmeta').
+
+--awk AWK::
+
+  Path to awk(1) binary (default: '/usr/bin/awk').
+
+--filed-sep FS::
+
+  Database filed separator (default '\000').
+
+--dir-sep DS::
+
+  Directory separator (default '/').
+
+-h|--help::
+
+  Display help screen.
+
+-a|--add-to-git::
+
+  Add database to the git commit list.
+
+-O|--owner::
+
+  Store symbolic file ownership to the database.
+
+-o|--numeric-owner::
+
+  Store numeric file ownership to the database.
+
+-P|--skip-perms::
+
+  Skip file perms during restore.
+    
+-M|--skip-mtime::
+
+  Skip file mtime during restore.
+
+-U|--skip-user::
+
+  Skip file owner during restore.
+
+-G|--skip-group::
+
+  Skip group owner during restore.
+
+== COMMANDS ==
+
+get::
+
+  Store metadata to database.
+
+set::
+
+  Restore metadata from database.
+
+dump::
+
+  Dump metadata from database.
+
+
+== DATABASE FORMAT ==
+
+The database format is quiet simple. It consists of several records
+(separated by 2 *field separators*). Each record consists of several fields
+(separated by 1 *field separator*).
+
+=== Record format ===
+
+A record is composed of:
+
+- the full filename path starting from the git repository root.
+- the file permissions in octal format.
+- the file mtime in seconds since Epoch.
+- the file owner (in numerical or symbolic format).
+- the file group (in numerical or symbolic format).
+
+=== Field separator ===
+
+By default the NULL character ('\000') is used as field separator. Using
+such separator ensures that +git-meta+ works in all cases with all type of
+filenames (specially with exotic ones).
+
+Meanwhile some versions of awk(1) don't allow the use of NULL char as field
+separator. Thus an other one should be used such as '\001'. By doing this,
+be sure no file name contains the '\001' char or the +git-meta+ database
+would be lead to a corruption error.
+
+=== File ownership ===
+
+File ownership (both owner and group) are either:
+
+- Not stored at all if neighter the '-o' nor '-O' option is given. This
+  might be used if the files ownership may change from one system to an
+  other. Generally this should be used in almost all cases. Otherwise a
+  large amount of changesets could pollute git commits. In that case the
+  last 2 fields (both owner and group) of each record are not present in the
+  database.
+- Stored in symbolic format if '-O' is given. This option should be used if
+  symbolic ownership are the same in all systems (for keeping track of
+  '/etc' changes for example).
+- Stored in numerical format if '-o' is given. This option should be used if
+  numerical ownerships are the same in all systems.
+
+== USING WITH GIT HOOKS ==
+
+Manual use +git-meta+ is not that much handy. It can be configured to be
+used directly withing githooks(5), specially *pre-commit* for the backup and
+*post-merge* for the restore.
+
+=== pre-commit example ===
+
+----
+#!/bin/sh
+
+git meta -a get
+----
+
+
+=== post-merge example ===
+
+----
+#!/bin/sh
+
+git meta set
+----
+
+== SEE ALSO ==
+
+git(1), githooks(5), stat(1), awk(1).
+
+== HISTORY ==
+
+2011/03/26::
+
+  First public release.
+
+== BUGS ==
+
+No time to include bugs, command actions might seldom lead astray user's
+assumption.
+
+== AUTHORS ==
+
++git-meta+ is written by Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>.
+
+== COPYRIGHT ==
+
+Copyright © 2011 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>.
+
+Relased under WTFPL (http://sam.zoy.org/wtfpl/COPYING[]).

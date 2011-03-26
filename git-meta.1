@@ -1,0 +1,283 @@
+'\" t
+.\"     Title: git-meta
+.\"    Author: [see the "AUTHORS" section]
+.\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
+.\"      Date: 03/26/2011
+.\"    Manual: \ \&
+.\"    Source: \ \&
+.\"  Language: English
+.\"
+.TH "GIT\-META" "1" "03/26/2011" "\ \&" "\ \&"
+.\" -----------------------------------------------------------------
+.\" * Define some portability stuff
+.\" -----------------------------------------------------------------
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.\" http://bugs.debian.org/507673
+.\" http://lists.gnu.org/archive/html/groff/2009-02/msg00013.html
+.\" ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.ie \n(.g .ds Aq \(aq
+.el       .ds Aq '
+.\" -----------------------------------------------------------------
+.\" * set default formatting
+.\" -----------------------------------------------------------------
+.\" disable hyphenation
+.nh
+.\" disable justification (adjust text to left margin only)
+.ad l
+.\" -----------------------------------------------------------------
+.\" * MAIN CONTENT STARTS HERE *
+.\" -----------------------------------------------------------------
+.SH "NAME"
+git-meta \- Handle file meta information within git
+.SH "SYNOPSIS"
+.sp
+git\-meta [ options ] command
+.SH "DESCRIPTION"
+.sp
+Git (currently) cannot handle file system meta information such as permissions, last modification time and ownership (both user and group)\&. Here comes git\-meta to fix this in some cases where these information are mandatory or simply useful\&.
+.sp
+All information are stored in a \&.gitmeta file managed itself by git\&.
+.sp
+Using git hooks may automate the backup and restore process\&.
+.SH "OPTIONS"
+.PP
+\-\-data DATA
+.RS 4
+Set the +git\-meta\*(Aq database file (default:
+\fI\&.gitmeta\fR)\&.
+.RE
+.PP
+\-\-awk AWK
+.RS 4
+Path to awk(1) binary (default:
+\fI/usr/bin/awk\fR)\&.
+.RE
+.PP
+\-\-filed\-sep FS
+.RS 4
+Database filed separator (default
+\fI\e000\fR)\&.
+.RE
+.PP
+\-\-dir\-sep DS
+.RS 4
+Directory separator (default
+\fI/\fR)\&.
+.RE
+.PP
+\-h|\-\-help
+.RS 4
+Display help screen\&.
+.RE
+.PP
+\-a|\-\-add\-to\-git
+.RS 4
+Add database to the git commit list\&.
+.RE
+.PP
+\-O|\-\-owner
+.RS 4
+Store symbolic file ownership to the database\&.
+.RE
+.PP
+\-o|\-\-numeric\-owner
+.RS 4
+Store numeric file ownership to the database\&.
+.RE
+.PP
+\-P|\-\-skip\-perms
+.RS 4
+Skip file perms during restore\&.
+.RE
+.PP
+\-M|\-\-skip\-mtime
+.RS 4
+Skip file mtime during restore\&.
+.RE
+.PP
+\-U|\-\-skip\-user
+.RS 4
+Skip file owner during restore\&.
+.RE
+.PP
+\-G|\-\-skip\-group
+.RS 4
+Skip group owner during restore\&.
+.RE
+.SH "COMMANDS"
+.PP
+get
+.RS 4
+Store metadata to database\&.
+.RE
+.PP
+set
+.RS 4
+Restore metadata from database\&.
+.RE
+.PP
+dump
+.RS 4
+Dump metadata from database\&.
+.RE
+.SH "DATABASE FORMAT"
+.sp
+The database format is quiet simple\&. It consists of several records (separated by 2 \fBfield separators\fR)\&. Each record consists of several fields (separated by 1 \fBfield separator\fR)\&.
+.SS "Record format"
+.sp
+A record is composed of:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the full filename path starting from the git repository root\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the file permissions in octal format\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the file mtime in seconds since Epoch\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the file owner (in numerical or symbolic format)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+the file group (in numerical or symbolic format)\&.
+.RE
+.SS "Field separator"
+.sp
+By default the NULL character (\fI\e000\fR) is used as field separator\&. Using such separator ensures that git\-meta works in all cases with all type of filenames (specially with exotic ones)\&.
+.sp
+Meanwhile some versions of awk(1) don\(cqt allow the use of NULL char as field separator\&. Thus an other one should be used such as \fI\e001\fR\&. By doing this, be sure no file name contains the \fI\e001\fR char or the git\-meta database would be lead to a corruption error\&.
+.SS "File ownership"
+.sp
+File ownership (both owner and group) are either:
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Not stored at all if neighter the
+\fI\-o\fR
+nor
+\fI\-O\fR
+option is given\&. This might be used if the files ownership may change from one system to an other\&. Generally this should be used in almost all cases\&. Otherwise a large amount of changesets could pollute git commits\&. In that case the last 2 fields (both owner and group) of each record are not present in the database\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Stored in symbolic format if
+\fI\-O\fR
+is given\&. This option should be used if symbolic ownership are the same in all systems (for keeping track of
+\fI/etc\fR
+changes for example)\&.
+.RE
+.sp
+.RS 4
+.ie n \{\
+\h'-04'\(bu\h'+03'\c
+.\}
+.el \{\
+.sp -1
+.IP \(bu 2.3
+.\}
+Stored in numerical format if
+\fI\-o\fR
+is given\&. This option should be used if numerical ownerships are the same in all systems\&.
+.RE
+.SH "USING WITH GIT HOOKS"
+.sp
+Manual use git\-meta is not that much handy\&. It can be configured to be used directly withing githooks(5), specially \fBpre\-commit\fR for the backup and \fBpost\-merge\fR for the restore\&.
+.SS "pre\-commit example"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+#!/bin/sh
+
+git meta \-a get
+.fi
+.if n \{\
+.RE
+.\}
+.SS "post\-merge example"
+.sp
+.if n \{\
+.RS 4
+.\}
+.nf
+#!/bin/sh
+
+git meta set
+.fi
+.if n \{\
+.RE
+.\}
+.SH "SEE ALSO"
+.sp
+git(1), githooks(5), stat(1), awk(1)\&.
+.SH "HISTORY"
+.PP
+2011/03/26
+.RS 4
+First public release\&.
+.RE
+.SH "BUGS"
+.sp
+No time to include bugs, command actions might seldom lead astray user\(cqs assumption\&.
+.SH "AUTHORS"
+.sp
+git\-meta is written by S\('ebastien Gross <seb\(buɑƬ\(buchezwam\(buɖɵʈ\(buorg>\&.
+.SH "COPYRIGHT"
+.sp
+Copyright \(co 2011 S\('ebastien Gross <seb\(buɑƬ\(buchezwam\(buɖɵʈ\(buorg>\&.
+.sp
+Relased under WTFPL (\m[blue]\fBhttp://sam\&.zoy\&.org/wtfpl/COPYING\fR\m[])\&.
