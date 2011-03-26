@@ -25,6 +25,12 @@ Using git hooks may automate the backup and restore process.
 
   Set the +git-meta' database file (default: '.gitmeta').
 
+-f|--force::
+
+  Force writing data even if no modification has been done in the git
+  tree. By default +git-meta+ does not run if no modification has been done
+  to prevent from massive git change set creation.
+
 --awk AWK::
 
   Path to awk(1) binary (default: '/usr/bin/awk').

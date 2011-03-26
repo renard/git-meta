@@ -34,9 +34,9 @@ git-meta \- Handle file meta information within git
 git\-meta [ options ] command
 .SH "DESCRIPTION"
 .sp
-Git (currently) cannot handle file system meta information such as permissions, last modification time and ownership (both user and group)\&. Here comes git\-meta to fix this in some cases where these information are mandatory or simply useful\&.
+Git (currently) cannot handle file system meta information such as permissions, last modification time or ownership (both user and group)\&. Here comes git\-meta to fix this in some cases where these informations are mandatory or simply useful\&.
 .sp
-All information are stored in a \&.gitmeta file managed itself by git\&.
+All informations are stored in a \&.gitmeta file managed itself by git\&.
 .sp
 Using git hooks may automate the backup and restore process\&.
 .SH "OPTIONS"
@@ -45,6 +45,13 @@ Using git hooks may automate the backup and restore process\&.
 .RS 4
 Set the +git\-meta\*(Aq database file (default:
 \fI\&.gitmeta\fR)\&.
+.RE
+.PP
+\-f|\-\-force
+.RS 4
+Force writing data even if no modification has been done in the git tree\&. By default
+git\-meta
+does not run if no modification has been done to prevent from massive git change set creation\&.
 .RE
 .PP
 \-\-awk AWK
