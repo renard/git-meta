@@ -3,7 +3,7 @@
 # git-meta --- Handle file meta information within git
 
 # Copyright © 2009 2010 2011 Sebastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
-# Last changed: 2011-03-26 14:43:16
+# Last changed: 2011-09-11 02:12:55
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -61,6 +61,7 @@ Options:
     -h|--help           Display this help screen
 
 Commands:
+    init                Setup hooks int .git directory.
     get                 Store metadata to ${DATA}
     set                 Restore metadata from ${DATA}
     dump                Dump metadata from ${DATA}
@@ -161,6 +162,26 @@ function dump() {
   }" ${DATA} | sort -u
 }
 
+function init() {
+    local dir=$(git rev-parse --git-dir)
+    if test -Z "${dir}"; then
+	die "Not in a git dir"
+    fi
+    cat <<EOF > "${dir}/hooks/pre-commit"
+#!/bin/sh
+
+git meta -a get
+EOF
+    chmod 755 "${dir}/hooks/pre-commit"
+    cat <<EOF > "${dir}/hooks/post-merge"
+#!/bin/sh
+
+git meta -a set
+EOF
+    chmod 755 "${dir}/hooks/post-merge"
+}
+
+
 add_owner=
 add_to_git=
 command=
@@ -175,6 +196,7 @@ while test $# != 0 && test -z "$command"; do
     get) command=get_meta;;
     set) command=set_meta;;
     dump) command=dump;;
+    init) command=init;;
     --owner|-O) add_owner=1;;
     --numeric-owner|-o) add_owner=2;;
     --add-to-git|-a) add_to_git=1;;
