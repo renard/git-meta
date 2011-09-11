@@ -89,6 +89,9 @@ dump::
 
   Dump metadata from database.
 
+init::
+
+  Create hooks in git hooks directory.
 
 == DATABASE FORMAT ==
 
@@ -161,6 +164,10 @@ git meta set
 git(1), githooks(5), stat(1), awk(1).
 
 == HISTORY ==
+
+2011/09/11::
+
+  Add init command.
 
 2011/03/26::
 

@@ -2,12 +2,12 @@
 .\"     Title: git-meta
 .\"    Author: [see the "AUTHORS" section]
 .\" Generator: DocBook XSL Stylesheets v1.75.2 <http://docbook.sf.net/>
-.\"      Date: 03/26/2011
+.\"      Date: 09/11/2011
 .\"    Manual: \ \&
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "GIT\-META" "1" "03/26/2011" "\ \&" "\ \&"
+.TH "GIT\-META" "1" "09/11/2011" "\ \&" "\ \&"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -126,6 +126,11 @@ Restore metadata from database\&.
 dump
 .RS 4
 Dump metadata from database\&.
+.RE
+.PP
+init
+.RS 4
+Create hooks in git hooks directory\&.
 .RE
 .SH "DATABASE FORMAT"
 .sp
@@ -272,6 +277,11 @@ git meta set
 .sp
 git(1), githooks(5), stat(1), awk(1)\&.
 .SH "HISTORY"
+.PP
+2011/09/11
+.RS 4
+Add init command\&.
+.RE
 .PP
 2011/03/26
 .RS 4
