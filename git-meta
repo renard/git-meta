@@ -3,7 +3,7 @@
 # git-meta --- Handle file meta information within git
 
 # Copyright © 2009 2010 2011 Sebastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
-# Last changed: 2011-09-11 02:12:55
+# Last changed: 2011-09-11 02:14:15
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -164,7 +164,7 @@ function dump() {
 
 function init() {
     local dir=$(git rev-parse --git-dir)
-    if test -Z "${dir}"; then
+    if test -z "${dir}"; then
 	die "Not in a git dir"
     fi
     cat <<EOF > "${dir}/hooks/pre-commit"
