@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-02-28 16:58:36
+# Last changed: 2014-02-28 18:13:40
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -28,7 +28,7 @@ import grp
 import json
 import argparse
 import pprint
-
+import datetime
 
 def run(cmd):
     """run cmd"""
@@ -46,25 +46,32 @@ def run(cmd):
         sys.stderr.write(err)
         sys.exit(1)
 
+def get_file_stats(f, args):
+    st = os.stat(f)
+    ret = { 'mode': st.st_mode, 'mtime': st.st_mtime }
+    if args['numeric_owner'] is True:
+        ret['uid'] = st.st_uid
+        ret['gid'] = st.st_gid
+    elif args['owner'] is True:
+        ret['uid'] = pwd.getpwuid(st.st_uid).pw_name,
+        ret['gid'] =  grp.getgrgid(st.st_gid).gr_name
+    return ret
+    
 
 def git_get_files_attributs(args):
     """ """
     out = run(['git', 'ls-files', '-z'])
     files=out.split('\0')
     files.sort()
-    rows = []
+    rows = {}
     for f in files:
         if not(os.path.isfile(f)):
             continue
-        row = [ f ]
-        st = os.stat(f)
-        row += [ st.st_mode, st.st_mtime ]
-        if args['numeric_owner'] is True:
-            row += [ st.st_uid, st.st_gid ]
-        elif args['owner'] is True:
-            row += [pwd.getpwuid(st.st_uid).pw_name,
-                    grp.getgrgid(st.st_gid).gr_name]
-        rows.append(row)
+        rows[f] = get_file_stats(f, args)
+        while not (f == '' or f == '.'):
+            if not rows.has_key(f):
+                rows[f] = get_file_stats(f, args)
+            f = os.path.dirname(f)
     metadata = open(args['data'], 'w')
     json.dump(rows, metadata, indent=0)
     metadata.close()
@@ -76,27 +83,53 @@ def load_metadata(args):
     p.close()
     return ret
 
+def dump_database(args):
+    data = load_metadata(args)
+    entries = data.keys()
+    entries.sort()
+    print('%s %s %s %s %s' %( 'mode'.center(6), 'mtime'.center(19), 'uid'.center(6), 'gid'.center(6), 'file' ))
+    for entry in entries:
+        row = ['%.6o' % data[entry]['mode']]
+        if data[entry].has_key('mtime'):
+            row.append(datetime.datetime.fromtimestamp(data[entry]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
+        if data[entry].has_key('uid'):
+            row.append('%6s' % data[entry]['uid'])
+        if data[entry].has_key('gid'):
+            row.append('%6s' % data[entry]['gid'])
+        if os.path.isfile(entry):
+            row.append(entry)
+        else:
+            row.append('%s/' % entry)
+        print ' '.join(row)
+
 def git_set_file_attributs(args):
-    rows = load_metadata(args)
-    for row in rows:
-        if args['skip_perms'] is False:
-            os.chmod(row[0], row[1])
-        if args['skip_mtime'] is False:
-            os.utime(row[0], (row[2], row[2]))
-        if len(row)>3:
-            uid = -1
-            gid = -1
-            if args['skip_user'] is False:
-                if isinstance(row[3], int):
-                    uid = row[3]
+    data = load_metadata(args)
+    for file in data.keys():
+        if args['verbose']: sys.stdout.write('%s:' % file)
+        if (args['skip_perms'] is False) or not(data[file].has_key('mode')):
+            if args['verbose']: sys.stdout.write(' mode:%6o' % data[file]['mode'])
+            os.chmod(file, data[file]['mode'])
+        if (args['skip_mtime'] is False)  or not(data[file].has_key('mtime')):
+            if args['verbose']: sys.stdout.write(' mtime:%s' % datetime.datetime.fromtimestamp(data[file]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
+            os.utime(file, (data[file]['mode'], data[file]['mode']))
+        uid = -1
+        gid = -1
+        if (args['skip_user'] is False) or not(data[file].has_key('uid')) or \
+           (args['skip_group'] is False) or not(data[file].has_key('gid')):
+            if (args['skip_user'] is False) or not(data[file].has_key('uid')):
+                if isinstance(data[file]['uid'], int):
+                    uid = data[file]['uid']
                 else:
-                    uid = pwd.getpwnam(row[3]).pw_uid
-            if args['skip_group'] is False:
-                if isinstance(row[4], int):
-                    gid = row[4]
+                    uid = pwd.getpwnam(data[file]['uid']).pw_uid
+            if (args['skip_group'] is False) or not(data[file].has_key('gid')):
+                if isinstance(data[file]['gid'], int):
+                    gid = data[file]['uid']
                 else:
-                    gid = grp.getgrnam(row[4]).gr_gid
-            os.chown(row[0], uid, gid)
+                    gid = grp.getgrnam(data[file]['uid']).gr_gid
+            if args['verbose']: sys.stdout.write(' user:%s group:%s' % (uid, gid))
+            os.chown(file, uid, gid)
+        if args['verbose']: sys.stdout.write('\n')
+
 
 def parse_cmd_line():
     """Parse command line arguments"""
@@ -120,6 +153,9 @@ def parse_cmd_line():
                       default=False, action='store_true')
     args.add_argument('-M', '--skip-mtime', help='Skip mtime during restore',
                       default=False, action='store_true')
+    args.add_argument('-v', '--verbose', help='Show operations',
+                      default=False, action='store_true')
+
 
     sp_cmd = args.add_subparsers(help='Command', dest='cmd')
 
@@ -135,8 +171,8 @@ def __init__():
     if args['cmd'] == 'get':
         git_get_files_attributs(args)
     elif args['cmd'] == 'dump':
-        ret = load_metadata(args)
-        print json.dumps(ret, indent=2)
+        #ret = load_metadata(args)
+        dump_database(args)
     elif args['cmd'] == 'set':
         git_set_file_attributs(args)
 
