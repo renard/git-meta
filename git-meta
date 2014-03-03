@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 14:56:30
+# Last changed: 2014-03-03 17:14:10
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -174,14 +174,18 @@ def git_init_hooks():
     """Initialize git hooks"""
     out = run(['git', 'rev-parse', '--git-dir'])
     dir = out.split('\n')[0]
-    f = open('%s/hooks/pre-commit' % dir, 'w')
-    f.write( "#!/bin/sh\n\n"
+    f='%s/hooks/pre-commit' % dir
+    fh = open(f, 'w')
+    fh.write( "#!/bin/sh\n\n"
     "git meta -a get || true\n")
-    f.close()
-    f = open('%s/hooks/post-merge' % dir, 'w')
-    f.write( "#!/bin/sh\n\n"
+    fh.close()
+    os.chmod(f, 755)
+    f='%s/hooks/post-merge' % dir
+    fh = open(f, 'w')
+    fh.write( "#!/bin/sh\n\n"
     "git meta set || true\n")
-    f.close()
+    fh.close()
+    os.chmod(f, 755)
 
 def __init__():
     args = parse_cmd_line()
