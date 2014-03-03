@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 17:14:10
+# Last changed: 2014-03-03 17:18:06
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -117,14 +117,14 @@ def git_set_file_attributs(args):
             os.utime(file, (data[file]['mtime'], data[file]['mtime']))
         uid = -1
         gid = -1
-        if (args['skip_user'] is False) or not(data[file].has_key('uid')) or \
-           (args['skip_group'] is False) or not(data[file].has_key('gid')):
-            if (args['skip_user'] is False) or not(data[file].has_key('uid')):
+        if (args['skip_user'] is False) and data[file].has_key('uid') or \
+           (args['skip_group'] is False) and data[file].has_key('gid'):
+            if (args['skip_user'] is False) and data[file].has_key('uid'):
                 if isinstance(data[file]['uid'], int):
                     uid = data[file]['uid']
                 else:
                     uid = pwd.getpwnam(data[file]['uid']).pw_uid
-            if (args['skip_group'] is False) or not(data[file].has_key('gid')):
+            if (args['skip_group'] is False) and data[file].has_key('gid'):
                 if isinstance(data[file]['gid'], int):
                     gid = data[file]['gid']
                 else:
