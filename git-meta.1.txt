@@ -23,25 +23,13 @@ Using git hooks may automate the backup and restore process.
 
 --data DATA::
 
-  Set the +git-meta' database file (default: '.gitmeta').
+  Set the +git-meta+ database file (default: '.gitmeta').
 
 -f|--force::
 
   Force writing data even if no modification has been done in the git
   tree. By default +git-meta+ does not run if no modification has been done
   to prevent from massive git change set creation.
-
---awk AWK::
-
-  Path to awk(1) binary (default: '/usr/bin/awk').
-
---filed-sep FS::
-
-  Database filed separator (default '\000').
-
---dir-sep DS::
-
-  Directory separator (default '/').
 
 -h|--help::
 
@@ -95,30 +83,21 @@ init::
 
 == DATABASE FORMAT ==
 
-The database format is quiet simple. It consists of several records
-(separated by 2 *field separators*). Each record consists of several fields
-(separated by 1 *field separator*).
+The database format is quiet simple. It consists of a JSON dump of a
+dictionnary for which the file name is the key and the file attributes are
+the values.  dictionnary.
 
-=== Record format ===
+=== Dictionnary format ===
 
-A record is composed of:
+The key is composed of the full filename path starting from the git
+repository root.
 
-- the full filename path starting from the git repository root.
-- the file permissions in octal format.
-- the file mtime in seconds since Epoch.
-- the file owner (in numerical or symbolic format).
-- the file group (in numerical or symbolic format).
+Each values are:
 
-=== Field separator ===
-
-By default the NULL character ('\000') is used as field separator. Using
-such separator ensures that +git-meta+ works in all cases with all type of
-filenames (specially with exotic ones).
-
-Meanwhile some versions of awk(1) don't allow the use of NULL char as field
-separator. Thus an other one should be used such as '\001'. By doing this,
-be sure no file name contains the '\001' char or the +git-meta+ database
-would be lead to a corruption error.
+- +mode+: the file permissions in decimal format.
+- +mtime+: the file mtime in seconds since Epoch.
+- +uid+: the file owner (in numerical or symbolic format).
+- +gid+: the file group (in numerical or symbolic format).
 
 === File ownership ===
 
@@ -147,7 +126,7 @@ used directly withing githooks(5), specially *pre-commit* for the backup and
 ----
 #!/bin/sh
 
-git meta -a get
+git meta -a get || true
 ----
 
 
@@ -156,14 +135,18 @@ git meta -a get
 ----
 #!/bin/sh
 
-git meta set
+git meta set || true
 ----
 
 == SEE ALSO ==
 
-git(1), githooks(5), stat(1), awk(1).
+git(1), githooks(5).
 
 == HISTORY ==
+
+2014/03/02::
+
+  Rewite script in python
 
 2011/09/11::
 
@@ -184,6 +167,6 @@ assumption.
 
 == COPYRIGHT ==
 
-Copyright © 2011 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>.
+Copyright © 2011-2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>.
 
 Relased under WTFPL (http://sam.zoy.org/wtfpl/COPYING[]).
