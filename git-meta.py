@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-01 12:33:38
+# Last changed: 2014-03-03 14:14:57
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -166,6 +166,20 @@ def parse_cmd_line():
 
     return args.parse_args().__dict__
 
+
+def git_init_hooks():
+    """Initialize git hooks"""
+    out = run(['git', 'rev-parse', '--git-dir'])
+    dir = out.split('\n')[0]
+    f = open('%s/hooks/pre-commit' % dir, 'w')
+    f.write( "#!/bin/sh\n\n"
+    "git meta -a get || true\n")
+    f.close()
+    f = open('%s/hooks/post-merge' % dir, 'w')
+    f.write( "#!/bin/sh\n\n"
+    "git meta -a set || true\n")
+    f.close()
+
 def __init__():
     args = parse_cmd_line()
     if args['cmd'] == 'get':
@@ -174,6 +188,7 @@ def __init__():
         dump_database(args)
     elif args['cmd'] == 'set':
         git_set_file_attributs(args)
-
+    elif args['cmd'] == 'init':
+        git_init_hooks()
 if __name__ == "__main__":
     __init__()
