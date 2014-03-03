@@ -8,7 +8,7 @@ Homepage: http://github.com/renard/git-meta
 
 Package: git-meta
 Architecture: all
-Depends: ${shlibs:Depends}, ${misc:Depends}, git | git-core,
+Depends: ${shlibs:Depends}, ${misc:Depends}, git | git-core, python
 Description: Handle file meta information within git
  Git (currently) cannot handle file system meta information such as
  permissions, last modification time or ownership (both user and

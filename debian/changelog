@@ -1,3 +1,9 @@
+git-meta (2.0-1) unstable; urgency=low
+
+  * Bump to version 2.
+
+ -- Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>  Mon, 03 Mar 2014 14:28:41 +0000
+
 git-meta (0.1-1) unstable; urgency=low
 
   * Initial release.
