@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-02-28 18:13:40
+# Last changed: 2014-03-01 12:33:38
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -111,7 +111,7 @@ def git_set_file_attributs(args):
             os.chmod(file, data[file]['mode'])
         if (args['skip_mtime'] is False)  or not(data[file].has_key('mtime')):
             if args['verbose']: sys.stdout.write(' mtime:%s' % datetime.datetime.fromtimestamp(data[file]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
-            os.utime(file, (data[file]['mode'], data[file]['mode']))
+            os.utime(file, (data[file]['mtime'], data[file]['mtime']))
         uid = -1
         gid = -1
         if (args['skip_user'] is False) or not(data[file].has_key('uid')) or \
@@ -123,9 +123,9 @@ def git_set_file_attributs(args):
                     uid = pwd.getpwnam(data[file]['uid']).pw_uid
             if (args['skip_group'] is False) or not(data[file].has_key('gid')):
                 if isinstance(data[file]['gid'], int):
-                    gid = data[file]['uid']
+                    gid = data[file]['gid']
                 else:
-                    gid = grp.getgrnam(data[file]['uid']).gr_gid
+                    gid = grp.getgrnam(data[file]['gid']).gr_gid
             if args['verbose']: sys.stdout.write(' user:%s group:%s' % (uid, gid))
             os.chown(file, uid, gid)
         if args['verbose']: sys.stdout.write('\n')
@@ -171,7 +171,6 @@ def __init__():
     if args['cmd'] == 'get':
         git_get_files_attributs(args)
     elif args['cmd'] == 'dump':
-        #ret = load_metadata(args)
         dump_database(args)
     elif args['cmd'] == 'set':
         git_set_file_attributs(args)
