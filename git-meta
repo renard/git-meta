@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 14:26:03
+# Last changed: 2014-03-03 14:56:30
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -75,6 +75,9 @@ def git_get_files_attributs(args):
     metadata = open(args['data'], 'w')
     json.dump(rows, metadata, indent=0)
     metadata.close()
+    if args['add_to_git']:
+        run(['git', 'add', args['data']])
+
 
 def load_metadata(args):
     """Load metada from file"""
@@ -177,7 +180,7 @@ def git_init_hooks():
     f.close()
     f = open('%s/hooks/post-merge' % dir, 'w')
     f.write( "#!/bin/sh\n\n"
-    "git meta -a set || true\n")
+    "git meta set || true\n")
     f.close()
 
 def __init__():
