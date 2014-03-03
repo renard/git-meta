@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 14:14:57
+# Last changed: 2014-03-03 14:26:03
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -136,7 +136,7 @@ def parse_cmd_line():
     args = argparse.ArgumentParser(description="Command line parser")
 
     args.add_argument('--data', help='Path to database', metavar='PATH',
-                      default='.metadata')
+                      default='.gitmeta')
     args.add_argument('-f', '--force', help='Force to commit',
                       default=False, action='store_true')
     args.add_argument('-O', '--owner', help='Add symbolic owner',
