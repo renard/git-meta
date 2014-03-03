@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 17:18:06
+# Last changed: 2014-03-03 17:29:41
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -170,22 +170,26 @@ def parse_cmd_line():
     return args.parse_args().__dict__
 
 
-def git_init_hooks():
+def git_init_hooks(args):
     """Initialize git hooks"""
     out = run(['git', 'rev-parse', '--git-dir'])
     dir = out.split('\n')[0]
     f='%s/hooks/pre-commit' % dir
     fh = open(f, 'w')
-    fh.write( "#!/bin/sh\n\n"
-    "git meta -a get || true\n")
+    fh.write( "#!/bin/sh\n\n" +
+              "if test -e %s; then\n" % args['data'] +
+              "    git meta -a get || true\n" +
+              "fi\n")
     fh.close()
-    os.chmod(f, 755)
+    os.chmod(f, 33152)
     f='%s/hooks/post-merge' % dir
     fh = open(f, 'w')
-    fh.write( "#!/bin/sh\n\n"
-    "git meta set || true\n")
+    fh.write( "#!/bin/sh\n\n" +
+              "if test -e %s; then\n" % args['data'] +
+              "    git meta set || true\n" +
+              "fi\n")
     fh.close()
-    os.chmod(f, 755)
+    os.chmod(f, 33152)
 
 def __init__():
     args = parse_cmd_line()
@@ -196,6 +200,6 @@ def __init__():
     elif args['cmd'] == 'set':
         git_set_file_attributs(args)
     elif args['cmd'] == 'init':
-        git_init_hooks()
+        git_init_hooks(args)
 if __name__ == "__main__":
     __init__()
