@@ -181,7 +181,7 @@ def git_init_hooks(args):
               "    git meta -a get || true\n" +
               "fi\n")
     fh.close()
-    os.chmod(f, 33152)
+    os.chmod(f, 33261)
     f='%s/hooks/post-merge' % dir
     fh = open(f, 'w')
     fh.write( "#!/bin/sh\n\n" +
@@ -189,7 +189,7 @@ def git_init_hooks(args):
               "    git meta set || true\n" +
               "fi\n")
     fh.close()
-    os.chmod(f, 33152)
+    os.chmod(f, 33261)
 
 def __init__():
     args = parse_cmd_line()
