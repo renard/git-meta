@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-03 17:29:41
+# Last changed: 2014-03-04 16:47:32
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -190,6 +190,8 @@ def git_init_hooks(args):
               "fi\n")
     fh.close()
     os.chmod(f, 33261)
+    if not os.path.exists('%s/hooks/post-checkout' % dir):
+        os.symlink('post-merge', '%s/hooks/post-checkout' % dir)
 
 def __init__():
     args = parse_cmd_line()
