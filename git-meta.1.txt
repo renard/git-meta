@@ -63,6 +63,13 @@ Using git hooks may automate the backup and restore process.
 
   Skip group owner during restore.
 
+-i|--ignore BRANCH::
+
+  Branch on witch +git-meta+ is ignored. This is treated as a regexp. This
+  option can be specified several times.
+  if not specfied, values are search in the +meta.ignore+ git
+  configuration key.
+
 == COMMANDS ==
 
 get::
@@ -143,6 +150,10 @@ git meta set || true
 git(1), githooks(5).
 
 == HISTORY ==
+
+2014/04/24::
+
+  Add ignore option
 
 2014/03/02::
 

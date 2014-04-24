@@ -8,7 +8,7 @@
 
 # Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>
 # Created: 2014-02-26
-# Last changed: 2014-03-04 16:47:32
+# Last changed: 2014-04-24 15:00:58
 
 # This program is free software. It comes without any warranty, to
 # the extent permitted by applicable law. You can redistribute it
@@ -27,10 +27,10 @@ import pwd
 import grp
 import json
 import argparse
-import pprint
 import datetime
+import re
 
-def run(cmd):
+def run(cmd, ignore_errors=False):
     """run cmd"""
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
@@ -38,7 +38,7 @@ def run(cmd):
     proc.wait()
     out, err = proc.communicate()
     rc = proc.returncode
-    if rc == 0:
+    if rc == 0 or ignore_errors:
         return out
     else:
         sys.stdout.write("Failed (%s): %s\n" %
@@ -136,6 +136,7 @@ def git_set_file_attributs(args):
 
 def parse_cmd_line():
     """Parse command line arguments"""
+
     args = argparse.ArgumentParser(description="Command line parser")
 
     args.add_argument('--data', help='Path to database', metavar='PATH',
@@ -158,7 +159,8 @@ def parse_cmd_line():
                       default=False, action='store_true')
     args.add_argument('-v', '--verbose', help='Show operations',
                       default=False, action='store_true')
-
+    args.add_argument('-i', '--ignore', help='Branch to ignore',
+                      action='append', metavar='BRANCH', default=None)
 
     sp_cmd = args.add_subparsers(help='Command', dest='cmd')
 
@@ -167,7 +169,14 @@ def parse_cmd_line():
     sp_cmd.add_parser('set', help='Restore metadata')
     sp_cmd.add_parser('dump', help='Dump metadata')
 
-    return args.parse_args().__dict__
+    ret = args.parse_args().__dict__
+
+    if ret['ignore'] is None:
+        # Remove last item since it is alway an empty string
+        ret['ignore']=run(['git', 'config', '--get-all', 'meta.ignore'],
+                          True).split('\n')[:-1]
+
+    return ret
 
 
 def git_init_hooks(args):
@@ -193,9 +202,23 @@ def git_init_hooks(args):
     if not os.path.exists('%s/hooks/post-checkout' % dir):
         os.symlink('post-merge', '%s/hooks/post-checkout' % dir)
 
+def check_branch_to_ignore(ignore):
+    if not ignore:
+        return
+
+    current_branch = run(['git', 'rev-parse', '--symbolic-full-name',
+                        '--abbrev-ref', 'HEAD']).split('\n')[0]
+    for i in ignore:
+        i_re = re.compile('^%s$' % i)
+        if i_re.match(current_branch):
+            #sys.stderr.write('Branch %s is ignored by \'%s\'.\n' % (current_branch, i))
+            sys.exit(0)
+
 def __init__():
     args = parse_cmd_line()
+    check_branch_to_ignore(args['ignore'])
     if args['cmd'] == 'get':
+        check_branch_to_ignore(args['ignore'])
         git_get_files_attributs(args)
     elif args['cmd'] == 'dump':
         dump_database(args)
@@ -203,5 +226,6 @@ def __init__():
         git_set_file_attributs(args)
     elif args['cmd'] == 'init':
         git_init_hooks(args)
+
 if __name__ == "__main__":
     __init__()
