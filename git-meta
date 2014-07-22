@@ -183,6 +183,7 @@ def git_init_hooks(args):
     """Initialize git hooks"""
     out = run(['git', 'rev-parse', '--git-dir'])
     dir = out.split('\n')[0]
+    #
     f='%s/hooks/pre-commit' % dir
     fh = open(f, 'w')
     fh.write( "#!/bin/sh\n\n" +
@@ -191,6 +192,20 @@ def git_init_hooks(args):
               "fi\n")
     fh.close()
     os.chmod(f, 33261)
+    #
+    f='%s/hooks/post-commit' % dir
+    fh = open(f, 'w')
+    fh.write( "#!/bin/sh\n\n" +
+              "if test -e %s; then\n" % args['data'] +
+              "    gitdir=\"$(git rev-parse --git-dir)\"\n" +
+              "    hook=\"$gitdir/hooks/post-commit\"\n" +
+              "    chmod -x $hook\n" +
+              "    (git commit --amend -C HEAD --no-verify .gitmeta || true ) >/dev/null 2>&1\n" +
+              "    chmod +x $hook\n" +
+              "fi\n")
+    fh.close()
+    os.chmod(f, 33261)
+    #
     f='%s/hooks/post-merge' % dir
     fh = open(f, 'w')
     fh.write( "#!/bin/sh\n\n" +
