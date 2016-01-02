@@ -48,7 +48,9 @@ def run(cmd, ignore_errors=False):
 
 def get_file_stats(f, args):
     st = os.stat(f)
-    ret = { 'mode': st.st_mode, 'mtime': int(st.st_mtime) }
+    ret = { 'mode': st.st_mode }
+    if args['skip_mtime'] is False:
+        ret['mtime'] = int(st.st_mtime)
     if args['numeric_owner'] is True:
         ret['uid'] = st.st_uid
         ret['gid'] = st.st_gid
@@ -155,7 +157,7 @@ def parse_cmd_line():
                       default=False, action='store_true')
     args.add_argument('-P', '--skip-perms', help='Skip perms during restore',
                       default=False, action='store_true')
-    args.add_argument('-M', '--skip-mtime', help='Skip mtime during restore',
+    args.add_argument('-M', '--skip-mtime', help='Skip mtime during store/restore',
                       default=False, action='store_true')
     args.add_argument('-v', '--verbose', help='Show operations',
                       default=False, action='store_true')
