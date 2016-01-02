@@ -58,7 +58,7 @@ def get_file_stats(f, args):
     return ret
     
 
-def git_get_files_attributs(args):
+def git_get_files_attributes(args):
     """ """
     out = run(['git', 'ls-files', '-z'])
     files=out.split('\0')
@@ -105,7 +105,7 @@ def dump_database(args):
             row.append('%s/' % entry)
         print ' '.join(row)
 
-def git_set_file_attributs(args):
+def git_set_file_attributes(args):
     data = load_metadata(args)
     for file in data.keys():
         if args['verbose']: sys.stdout.write('%s:' % file)
@@ -234,11 +234,11 @@ def __init__():
     check_branch_to_ignore(args['ignore'])
     if args['cmd'] == 'get':
         check_branch_to_ignore(args['ignore'])
-        git_get_files_attributs(args)
+        git_get_files_attributes(args)
     elif args['cmd'] == 'dump':
         dump_database(args)
     elif args['cmd'] == 'set':
-        git_set_file_attributs(args)
+        git_set_file_attributes(args)
     elif args['cmd'] == 'init':
         git_init_hooks(args)
 
