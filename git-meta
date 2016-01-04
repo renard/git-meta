@@ -64,7 +64,6 @@ def git_get_files_attributes(args):
     """ """
     out = run(['git', 'ls-files', '-z'])
     files=out.split('\0')
-    files.sort()
     rows = {}
     for f in files:
         if not(os.path.isfile(f)):
@@ -75,7 +74,7 @@ def git_get_files_attributes(args):
                 rows[f] = get_file_stats(f, args)
             f = os.path.dirname(f)
     metadata = open(args['data'], 'w')
-    json.dump(rows, metadata, indent=0)
+    json.dump(rows, metadata, indent=0, sort_keys=True)
     metadata.close()
     if args['add_to_git']:
         run(['git', 'add', args['data']])
