@@ -1,13 +1,13 @@
 '\" t
 .\"     Title: git-meta
 .\"    Author: [see the "AUTHORS" section]
-.\" Generator: DocBook XSL Stylesheets v1.76.1 <http://docbook.sf.net/>
-.\"      Date: 04/24/2014
+.\" Generator: DocBook XSL Stylesheets v1.78.1 <http://docbook.sf.net/>
+.\"      Date: 01/04/2016
 .\"    Manual: \ \&
 .\"    Source: \ \&
 .\"  Language: English
 .\"
-.TH "GIT\-META" "1" "04/24/2014" "\ \&" "\ \&"
+.TH "GIT\-META" "1" "01/04/2016" "\ \&" "\ \&"
 .\" -----------------------------------------------------------------
 .\" * Define some portability stuff
 .\" -----------------------------------------------------------------
@@ -83,7 +83,7 @@ Skip file perms during restore\&.
 .PP
 \-M|\-\-skip\-mtime
 .RS 4
-Skip file mtime during restore\&.
+Skip file mtime during store/restore operations\&. The mtime is not written into the database\&.
 .RE
 .PP
 \-U|\-\-skip\-user
@@ -142,7 +142,6 @@ Each values are:
 .sp -1
 .IP \(bu 2.3
 .\}
-
 mode: the file permissions in decimal format\&.
 .RE
 .sp
@@ -154,7 +153,6 @@ mode: the file permissions in decimal format\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
 mtime: the file mtime in seconds since Epoch\&.
 .RE
 .sp
@@ -166,7 +164,6 @@ mtime: the file mtime in seconds since Epoch\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
 uid: the file owner (in numerical or symbolic format)\&.
 .RE
 .sp
@@ -178,7 +175,6 @@ uid: the file owner (in numerical or symbolic format)\&.
 .sp -1
 .IP \(bu 2.3
 .\}
-
 gid: the file group (in numerical or symbolic format)\&.
 .RE
 .SS "File ownership"

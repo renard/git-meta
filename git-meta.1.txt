@@ -53,7 +53,8 @@ Using git hooks may automate the backup and restore process.
     
 -M|--skip-mtime::
 
-  Skip file mtime during restore.
+  Skip file mtime during store/restore operations. The mtime is not written
+  into the database.
 
 -U|--skip-user::
 
