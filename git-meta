@@ -29,6 +29,8 @@ import json
 import argparse
 import datetime
 import re
+from distutils.version import StrictVersion
+from time import gmtime, strftime
 
 def run(cmd, ignore_errors=False):
     """run cmd"""
@@ -47,7 +49,7 @@ def run(cmd, ignore_errors=False):
         sys.exit(1)
 
 def get_file_stats(f, args):
-    st = os.stat(f)
+    st = os.lstat(f)
     ret = { 'mode': st.st_mode }
     if args['skip_mtime'] is False:
         ret['mtime'] = int(st.st_mtime)
@@ -108,14 +110,25 @@ def dump_database(args):
 
 def git_set_file_attributes(args):
     data = load_metadata(args)
+    ## Check for availability of -h option of touch
+    v = run (['touch', '--version']).split('\n') [0]
+    m = re.match (r'touch \(GNU coreutils\) ([\d.]+)', v)
+    touch_has_noderef = m and (StrictVersion(m.group(1)) >= StrictVersion('8.1'))
     for file in data.keys():
         if args['verbose']: sys.stdout.write('%s:' % file)
         if (args['skip_perms'] is False) and data[file].has_key('mode'):
-            if args['verbose']: sys.stdout.write(' mode:%6o' % data[file]['mode'])
-            os.chmod(file, data[file]['mode'])
+           if not os.path.islink(file):
+               if args['verbose']: sys.stdout.write(' mode:%6o' % data[file]['mode'])
+               os.chmod(file, data[file]['mode'])
         if (args['skip_mtime'] is False) and data[file].has_key('mtime'):
             if args['verbose']: sys.stdout.write(' mtime:%s' % datetime.datetime.fromtimestamp(data[file]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
-            os.utime(file, (data[file]['mtime'], data[file]['mtime']))
+            if os.path.islink(file):
+                if touch_has_noderef:
+                    run(['touch', '-h', '-t',
+                         strftime ('%Y%m%d%H%M.%S', gmtime(data[file]['mtime'])),
+                         file])
+            else:
+                os.utime(file, (data[file]['mtime'], data[file]['mtime']))
         uid = -1
         gid = -1
         if (args['skip_user'] is False) and data[file].has_key('uid') or \
@@ -131,7 +144,7 @@ def git_set_file_attributes(args):
                 else:
                     gid = grp.getgrnam(data[file]['gid']).gr_gid
             if args['verbose']: sys.stdout.write(' user:%s group:%s' % (uid, gid))
-            os.chown(file, uid, gid)
+            os.lchown(file, uid, gid)
         if args['verbose']: sys.stdout.write('\n')
 
 
