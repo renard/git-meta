@@ -111,10 +111,10 @@ def git_set_file_attributs(args):
     data = load_metadata(args)
     for file in data.keys():
         if args['verbose']: sys.stdout.write('%s:' % file)
-        if (args['skip_perms'] is False) or not(data[file].has_key('mode')):
+        if (args['skip_perms'] is False) and data[file].has_key('mode'):
             if args['verbose']: sys.stdout.write(' mode:%6o' % data[file]['mode'])
             os.chmod(file, data[file]['mode'])
-        if (args['skip_mtime'] is False)  or not(data[file].has_key('mtime')):
+        if (args['skip_mtime'] is False) and data[file].has_key('mtime'):
             if args['verbose']: sys.stdout.write(' mtime:%s' % datetime.datetime.fromtimestamp(data[file]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
             os.utime(file, (data[file]['mtime'], data[file]['mtime']))
         uid = -1
