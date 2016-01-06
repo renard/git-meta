@@ -110,10 +110,16 @@ def dump_database(args):
 
 def git_set_file_attributes(args):
     data = load_metadata(args)
-    ## Check for availability of -h option of touch
-    v = run (['touch', '--version']).split('\n') [0]
-    m = re.match (r'touch \(GNU coreutils\) ([\d.]+)', v)
-    touch_has_noderef = m and (StrictVersion(m.group(1)) >= StrictVersion('8.1'))
+    ## Check for availability of -h option of touch (only in Linux)
+    if sys.platform == "linux" or sys.platform == "linux2":
+        v = run (['touch', '--version']).split('\n') [0]
+        m = re.match (r'touch \(GNU coreutils\) ([\d.]+)', v)
+        touch_has_noderef = m and (StrictVersion(m.group(1)) >= StrictVersion('8.1'))
+    else:
+        if sys.platform == "darwin":
+            touch_has_noderef = True
+        else:
+            touch_has_noderef = False
     for file in data.keys():
         if args['verbose']: sys.stdout.write('%s:' % file)
         if (args['skip_perms'] is False) and data[file].has_key('mode'):
