@@ -68,7 +68,7 @@ def git_get_files_attributes(args):
     files=out.split('\0')
     rows = {}
     for f in files:
-        if not(os.path.isfile(f)):
+        if not(os.path.isfile(f)) and not(os.path.islink(f)):
             continue
         rows[f] = get_file_stats(f, args)
         while not (f == '' or f == '.'):
