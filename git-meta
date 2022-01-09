@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 
 """
@@ -36,7 +36,8 @@ def run(cmd, ignore_errors=False):
     """run cmd"""
     proc = subprocess.Popen(cmd,
                             stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+                            stderr=subprocess.PIPE,
+                            text=True)
     proc.wait()
     out, err = proc.communicate()
     rc = proc.returncode
@@ -72,7 +73,7 @@ def git_get_files_attributes(args):
             continue
         rows[f] = get_file_stats(f, args)
         while not (f == '' or f == '.'):
-            if not rows.has_key(f):
+            if not f in rows:
                 rows[f] = get_file_stats(f, args)
             f = os.path.dirname(f)
     metadata = open(args['data'], 'w')
@@ -96,17 +97,17 @@ def dump_database(args):
     print('%s %s %s %s %s' %( 'mode'.center(6), 'mtime'.center(19), 'uid'.center(6), 'gid'.center(6), 'file' ))
     for entry in entries:
         row = ['%.6o' % data[entry]['mode']]
-        if data[entry].has_key('mtime'):
+        if 'mtime' in data[entry]:
             row.append(datetime.datetime.fromtimestamp(data[entry]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
-        if data[entry].has_key('uid'):
+        if 'uid' in data[entry]:
             row.append('%6s' % data[entry]['uid'])
-        if data[entry].has_key('gid'):
+        if 'gid' in data[entry]:
             row.append('%6s' % data[entry]['gid'])
         if os.path.isfile(entry):
             row.append(entry)
         else:
             row.append('%s/' % entry)
-        print ' '.join(row)
+        print(' '.join(row))
 
 def git_set_file_attributes(args):
     data = load_metadata(args)
@@ -122,11 +123,11 @@ def git_set_file_attributes(args):
             touch_has_noderef = False
     for file in data.keys():
         if args['verbose']: sys.stdout.write('%s:' % file)
-        if (args['skip_perms'] is False) and data[file].has_key('mode'):
+        if (args['skip_perms'] is False) and 'mode' in data[file]:
            if not os.path.islink(file):
                if args['verbose']: sys.stdout.write(' mode:%6o' % data[file]['mode'])
                os.chmod(file, data[file]['mode'])
-        if (args['skip_mtime'] is False) and data[file].has_key('mtime'):
+        if (args['skip_mtime'] is False) and 'mtime' in data[file]:
             if args['verbose']: sys.stdout.write(' mtime:%s' % datetime.datetime.fromtimestamp(data[file]['mtime']).strftime('%Y-%m-%d %H:%M:%S'))
             if os.path.islink(file):
                 if touch_has_noderef:
@@ -137,14 +138,14 @@ def git_set_file_attributes(args):
                 os.utime(file, (data[file]['mtime'], data[file]['mtime']))
         uid = -1
         gid = -1
-        if (args['skip_user'] is False) and data[file].has_key('uid') or \
-           (args['skip_group'] is False) and data[file].has_key('gid'):
-            if (args['skip_user'] is False) and data[file].has_key('uid'):
+        if (args['skip_user'] is False) and 'uid' in data[file] or \
+           (args['skip_group'] is False) and 'gid' in data[file]:
+            if (args['skip_user'] is False) and 'uid' in data[file]:
                 if isinstance(data[file]['uid'], int):
                     uid = data[file]['uid']
                 else:
                     uid = pwd.getpwnam(data[file]['uid']).pw_uid
-            if (args['skip_group'] is False) and data[file].has_key('gid'):
+            if (args['skip_group'] is False) and 'gid' in data[file]:
                 if isinstance(data[file]['gid'], int):
                     gid = data[file]['gid']
                 else:
