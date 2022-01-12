@@ -38,8 +38,8 @@ def run(cmd, ignore_errors=False):
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE,
                             text=True)
-    proc.wait()
     out, err = proc.communicate()
+    proc.wait()
     rc = proc.returncode
     if rc == 0 or ignore_errors:
         return out
