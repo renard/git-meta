@@ -21,7 +21,7 @@ __author__ = "Sébastien Gross"
 __copyright__ = """Copyright © 2014 Sébastien Gross <seb•ɑƬ•chezwam•ɖɵʈ•org>"""
 
 import os, sys, subprocess
-import pipes
+import shlex
 from stat import *
 import pwd
 import grp
@@ -45,7 +45,7 @@ def run(cmd, ignore_errors=False):
         return out
     else:
         sys.stdout.write("Failed (%s): %s\n" %
-                         (rc, ' '.join(pipes.quote(arg) for arg in cmd)))
+                         (rc, ' '.join(shlex.quote(arg) for arg in cmd)))
         sys.stderr.write(err)
         sys.exit(1)
 
