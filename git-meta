@@ -28,8 +28,14 @@ import json
 import argparse
 import datetime
 import re
-from distutils.version import StrictVersion
 from time import gmtime, strftime
+
+try:
+    # Python <= 3.9
+    from distutils.version import StrictVersion
+except ModuleNotFoundError:
+    from packaging.version import Version
+    StrictVersion = Version
 
 try:
     # Python <= 3.12 (removed from 3.13)
@@ -125,7 +131,7 @@ def git_set_file_attributes(args):
     if sys.platform == "linux" or sys.platform == "linux2":
         v = run (['touch', '--version']).split('\n') [0]
         m = re.match (r'touch \(GNU coreutils\) ([\d.]+)', v)
-        touch_has_noderef = m and (StrictVersion(m.group(1)) >= StrictVersion('8.1'))
+        touch_has_noderef = m and (Version(m.group(1)) >= Version('8.1'))
     else:
         if sys.platform == "darwin":
             touch_has_noderef = True
